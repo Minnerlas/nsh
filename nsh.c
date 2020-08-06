@@ -24,12 +24,16 @@ void eval(char *ul, int duz) {
 	char *prg;
 
 	char *tok = strtok(ul, delm);
-	prg = malloc(sizeof(*prg) * (strlen(put) + strlen(tok) + 1));
-	*prg = 0;
-	strcpy(prg, put);
-	strcat(prg, tok);
-	dbgprint(("prg: %s\n", prg));
-
+	if((tok[0] == '.') && (tok[1] == '/')) {
+		prg = strdup(tok);
+		dbgprint((1, "prg(./): %s\n", prg));
+	} else {
+		prg = malloc(sizeof(*prg) * (strlen(put) + strlen(tok) + 1));
+		*prg = 0;
+		strcpy(prg, put);
+		strcat(prg, tok);
+		dbgprint((1, "prg: %s\n", prg));
+	}
 	if((fd = open(prg, 0)) >= 0){
 
 		while(tok) {
@@ -44,7 +48,7 @@ void eval(char *ul, int duz) {
 				argv = t;
 			}
 
-			dbgprint(("%s\n", tok));
+			dbgprint((1, "%s\n", tok));
 			tok = strtok(NULL, delm);
 		}
 
@@ -53,7 +57,14 @@ void eval(char *ul, int duz) {
 		else
 			nwait();
 	} else {
-		nprintf(1, "Can't open %s; no such file\n", prg);
+		if((tok[0] == 'c') && (tok[1] == 'd') && (tok[2] == 0)) {
+			tok = strtok(NULL, delm);
+
+			if(chdir(tok) < 0)
+				nprintf(2, "cannot cd %s\n", tok);
+		} else {
+			nprintf(2, "Can't open %s; no such file\n", prg);
+		}
 	}
 
 	/*================= KRAJ =================*/
