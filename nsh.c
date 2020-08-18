@@ -14,7 +14,7 @@ char ul[DUZ] = {0};
 char delm[] = " \n\t";
 const char put[] = "/usr/bin/";
 
-void eval(char *ul, int duz) {
+void eval(char *ul, int duz, char **envp) {
 	if(!*ul)
 		return;
 	char **argv = malloc(sizeof(*argv) * (POCDUZ + 1));
@@ -58,7 +58,7 @@ void eval(char *ul, int duz) {
 			goto kraj;
 
 		if(fork() == 0)
-			exec(prg, argv);
+			execve(prg, argv, envp);
 		else
 			nwait();
 	} else {
@@ -81,13 +81,13 @@ kraj:
 	free(prg);
 }
 
-int main() {
+int main(int argc, char **argv, char **envp) {
 	for(;;) {
 		nprintf(1, "> ");
 		//ngets(ul, DUZ);
 		if(!fgets(ul, DUZ, stdin))
 			break;
-		eval(ul, DUZ);
+		eval(ul, DUZ, envp);
 	}
 	nexit();
 }
